@@ -1,4 +1,4 @@
-name: Build Jamia Aisha APK with EAS CLI
+name: Build Jamia Aisha APK
 
 on:
   push:
@@ -8,16 +8,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     env:
-      CI: "1"
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -29,16 +28,33 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli@latest
 
-      - name: Configure EAS (Skip if already done)
-        run: eas build:configure || true
-
-      - name: Build APK with EAS
+      - name: Build APK
         id: build
+        env:
+          CI: "1"
         run: |
+          # Token چیک کریں
+          echo "Token length: ${#EXPO_TOKEN}"
+          if [[ ${#EXPO_TOKEN} -lt 30 ]]; then
+            echo "ERROR: Token too short or empty!"
+            exit 1
+          fi
+          
+          # Build شروع کریں
           eas build --platform android --profile preview --non-interactive --no-wait
-          echo "Waiting for build to finish..."
-          sleep 30
-          APK_URL=$(eas build:list --platform android --status finished --limit 1 --json | jq -r '.[0].artifacts.buildUrl')
+          
+          # بلڈ ختم ہونے کا انتظار
+          echo "Waiting for build to complete..."
+          sleep 60
+          
+          # APK URL نکالیں
+          APK_URL=$(eas build:list --platform android --status finished --limit 1 --json | jq -r '.[0].artifacts.buildUrl // empty')
+          
+          if [[ -z "$APK_URL" ]]; then
+            echo "Build URL not found. Check Expo dashboard."
+            exit 1
+          fi
+          
           echo "APK_URL=$APK_URL" >> $GITHUB_OUTPUT
 
       - name: Create Release
@@ -50,5 +66,3 @@ jobs:
             **APK ڈاؤن لوڈ کریں:** ${{ steps.build.outputs.APK_URL }}
             
             > طالبات **Expo Go** ایپ انسٹال کریں اور یہ لنک کھولیں۔
-          draft: false
-          prerelease: false
