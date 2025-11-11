@@ -1,4 +1,4 @@
-name: Build Jamia Aisha APK
+name: Build Jamia Aisha APK with EAS
 
 on:
   push:
@@ -26,13 +26,14 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # Login command ہٹا دیا — EXPO_TOKEN خود authenticate کرے گا
+      - name: Install EAS CLI
+        run: npm install -g @expo/eas-cli
 
-      - name: Build APK
+      - name: Build APK with EAS
         id: build
         run: |
-          npx expo build:android --type apk --release-channel production
-          echo "APK_URL=$(npx expo url:apk)" >> $GITHUB_OUTPUT
+          eas build --platform android --profile preview --non-interactive
+          echo "APK_URL=$(eas build:list --platform android --latest --json | jq -r '.[] | select(.status == "finished") | .artifacts.apkUrl')" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
