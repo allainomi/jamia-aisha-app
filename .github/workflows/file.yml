@@ -43,6 +43,4 @@ jobs:
           body: |
             **APK ڈاؤن لوڈ کریں:** ${{ steps.build.outputs.APK_URL }}
             
-            > طالبات **Expo Go** ایپ انسٹال کریں اور یہ لنک کھولیں۔
-          draft: false
-          prerelease: false
+            > طالبات **Expo Go** ایپ انسٹال کریں اور یہ لنک کھولیں。
