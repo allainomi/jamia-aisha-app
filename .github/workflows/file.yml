@@ -27,13 +27,15 @@ jobs:
         run: npm install
 
       - name: Install EAS CLI
-        run: npm install -g eas-cli
+        run: npm install -g eas-cli@latest
 
       - name: Build APK with EAS
         id: build
         run: |
+          eas build:configure
           eas build --platform android --profile preview --non-interactive
-          echo "APK_URL=$(eas build:list --platform android --latest --json | jq -r '.[] | select(.status == "finished") | .artifacts.apkUrl')" >> $GITHUB_OUTPUT
+          APK_URL=$(eas build:list --platform android --latest --json | jq -r '.builds[0].artifacts.apkUrl')
+          echo "APK_URL=$APK_URL" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
