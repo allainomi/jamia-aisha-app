@@ -7,7 +7,6 @@ on:
 
 jobs:
   build:
-    name: Build APK
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -22,27 +21,30 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: |
-          npm install -g expo-cli
-          npm install
+        run: npm install
 
       - name: Login to Expo
-        run: |
-          echo "${{ secrets.EXPO_TOKEN }}" | expo login --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: npx expo login --non-interactive
 
       - name: Build APK
         id: build
         run: |
-          expo build:android -t apk --release-channel production
-          echo "APK_URL=$(expo url:apk --non-interactive)" >> $GITHUB_OUTPUT
+          npx expo build:android --type apk --release-channel production --non-interactive
+          APK_URL=$(npx expo url:apk --non-interactive)
+          echo "APK_URL=$APK_URL" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
           tag_name: v${{ github.run_number }}
-          release_name: "ایپ ورژن ${{ github.run_number }}"
+          release_name: "جامعہ عائشہ ایپ ورژن ${{ github.run_number }}"
           body: |
-            APK ڈاؤن لوڈ کریں: ${{ steps.build.outputs.APK_URL }}
+            ## APK ڈاؤن لوڈ کریں
+            ${{ steps.build.outputs.APK_URL }}
+            
+            > طالبات Expo Go ایپ انسٹال کریں اور یہ لنک کھولیں۔
           draft: false
           prerelease: false
         env:
