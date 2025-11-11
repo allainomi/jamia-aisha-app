@@ -1,4 +1,4 @@
-name: Build Jamia Aisha APK with EAS
+name: Build Jamia Aisha APK with EAS CLI
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
         run: npm install
 
       - name: Install EAS CLI
-        run: npm install -g @expo/eas-cli
+        run: npm install -g eas-cli
 
       - name: Build APK with EAS
         id: build
