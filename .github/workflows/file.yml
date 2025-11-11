@@ -23,16 +23,19 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Login to Expo
+      - name: Login to Expo with Token
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: npx expo login --non-interactive
+          CI: "1"
+        run: npx expo login
 
       - name: Build APK
         id: build
+        env:
+          CI: "1"
         run: |
-          npx expo build:android --type apk --release-channel production --non-interactive
-          APK_URL=$(npx expo url:apk --non-interactive)
+          npx expo build:android --type apk --release-channel production
+          APK_URL=$(npx expo url:apk)
           echo "APK_URL=$APK_URL" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
@@ -41,10 +44,10 @@ jobs:
           tag_name: v${{ github.run_number }}
           release_name: "جامعہ عائشہ ایپ ورژن ${{ github.run_number }}"
           body: |
-            ## APK ڈاؤن لوڈ کریں
-            ${{ steps.build.outputs.APK_URL }}
+            ## نیا APK تیار ہے!
+            **ڈاؤن لوڈ لنک:** ${{ steps.build.outputs.APK_URL }}
             
-            > طالبات Expo Go ایپ انسٹال کریں اور یہ لنک کھولیں۔
+            > طالبات **Expo Go** ایپ انسٹال کریں اور یہ لنک کھولیں۔
           draft: false
           prerelease: false
         env:
