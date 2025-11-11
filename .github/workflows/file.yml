@@ -9,6 +9,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      CI: "1"
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     steps:
       - name: Checkout Repository
@@ -23,16 +26,11 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Login to Expo with Token
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          CI: "1"
+      - name: Login to Expo (CI Mode)
         run: npx expo login
 
       - name: Build APK
         id: build
-        env:
-          CI: "1"
         run: |
           npx expo build:android --type apk --release-channel production
           APK_URL=$(npx expo url:apk)
