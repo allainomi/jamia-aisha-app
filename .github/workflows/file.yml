@@ -1,0 +1,49 @@
+name: Build & Release Jamia Aisha App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm install -g expo-cli
+          npm install
+
+      - name: Login to Expo
+        run: |
+          echo "${{ secrets.EXPO_TOKEN }}" | expo login --non-interactive
+
+      - name: Build APK
+        id: build
+        run: |
+          expo build:android -t apk --release-channel production
+          echo "APK_URL=$(expo url:apk --non-interactive)" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: "ایپ ورژن ${{ github.run_number }}"
+          body: |
+            APK ڈاؤن لوڈ کریں: ${{ steps.build.outputs.APK_URL }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
