@@ -1,4 +1,4 @@
-name: Build & Release Jamia Aisha App
+name: Build Jamia Aisha APK
 
 on:
   push:
@@ -14,10 +14,10 @@ jobs:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -26,27 +26,23 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Login to Expo (CI Mode)
+      - name: Login to Expo
         run: npx expo login
 
       - name: Build APK
         id: build
         run: |
           npx expo build:android --type apk --release-channel production
-          APK_URL=$(npx expo url:apk)
-          echo "APK_URL=$APK_URL" >> $GITHUB_OUTPUT
+          echo "APK_URL=$(npx expo url:apk)" >> $GITHUB_OUTPUT
 
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
-          release_name: "جامعہ عائشہ ایپ ورژن ${{ github.run_number }}"
+          name: جامعہ عائشہ ایپ v${{ github.run_number }}
           body: |
-            ## نیا APK تیار ہے!
-            **ڈاؤن لوڈ لنک:** ${{ steps.build.outputs.APK_URL }}
+            **APK ڈاؤن لوڈ کریں:** ${{ steps.build.outputs.APK_URL }}
             
             > طالبات **Expo Go** ایپ انسٹال کریں اور یہ لنک کھولیں۔
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
