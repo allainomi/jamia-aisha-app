@@ -14,10 +14,10 @@ jobs:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -26,8 +26,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Login to Expo
-        run: npx expo login
+      # Login command ہٹا دیا — EXPO_TOKEN خود authenticate کرے گا
 
       - name: Build APK
         id: build
@@ -43,4 +42,6 @@ jobs:
           body: |
             **APK ڈاؤن لوڈ کریں:** ${{ steps.build.outputs.APK_URL }}
             
-            > طالبات **Expo Go** ایپ انسٹال کریں اور یہ لنک کھولیں。
+            > طالبات **Expo Go** ایپ انسٹال کریں اور یہ لنک کھولیں۔
+          draft: false
+          prerelease: false
